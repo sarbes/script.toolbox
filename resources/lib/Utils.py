@@ -45,7 +45,7 @@ def open_info_panel():
 
 def AddArtToLibrary(type, media, folder, limit, silent=False):
     json_query = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.Get%ss", "params": {"properties": ["art", "file"], "sort": { "method": "label" } }, "id": 1}' % media.lower())
-    json_query = unicode(json_query, 'utf-8', errors='ignore')
+    #json_query = unicode(json_query, 'utf-8', errors='ignore')
     json_response = simplejson.loads(json_query)
     if (json_response['result'] is not None) and ('%ss' % (media.lower()) in json_response['result']):
         # iterate through the results
@@ -79,10 +79,12 @@ def media_path(path):
         path = os.path.split(path)[0]
     # Fixes problems with rared movies and multipath
     if path.startswith("rar://"):
-        path = os.path.split(urllib.url2pathname(path.replace("rar://", "")))[0]
+        #path = os.path.split(urllib.url2pathname(path.replace("rar://", "")))[0]
+        path = os.path.split(urllib.request.url2pathname(path.replace("rar://", "")))[0]
     elif path.startswith("multipath://"):
         temp_path = path.replace("multipath://", "").split('%2f/')
-        path = urllib.url2pathname(temp_path[0])
+        #path = urllib.url2pathname(temp_path[0])
+        path = urllib.request.url2pathname(temp_path[0])
     return path
 
 
@@ -114,7 +116,8 @@ def import_skinsettings():
 
 
 def export_skinsettings(filter_label=False):
-    s_path = xbmc.translatePath('special://profile/addon_data/%s/settings.xml' % xbmc.getSkinDir()).decode("utf-8")
+    #s_path = xbmc.translatePath('special://profile/addon_data/%s/settings.xml' % xbmc.getSkinDir()).decode("utf-8")
+    s_path = xbmc.translatePath('special://profile/addon_data/%s/settings.xml' % xbmc.getSkinDir())
     if not xbmcvfs.exists(s_path):
         xbmcgui.Dialog().ok(ADDON_LANGUAGE(32007), ADDON_LANGUAGE(32008))
         log("settings.xml not found")
@@ -159,7 +162,8 @@ def Filter_Image(filterimage, radius):
                         img = Image.open(xbmc.translatePath(xbmc_vid_cache_file))
                         break
                     else:
-                        filterimage = urllib.unquote(filterimage.replace("image://", "")).decode('utf8')
+                        #filterimage = urllib.unquote(filterimage.replace("image://", "")).decode('utf8')
+                        filterimage = urllib.parse.unquote(filterimage.replace("image://", ""))
                         if filterimage.endswith("/"):
                             filterimage = filterimage[:-1]
                         log("copy image from source: " + filterimage)
@@ -440,10 +444,11 @@ def GetFavourites():
 
 
 def log(txt):
-    if isinstance(txt, str):
-        txt = txt.decode("utf-8")
+    #if isinstance(txt, str):
+    #    txt = txt.decode("utf-8")
     message = u'%s: %s' % (ADDON_ID, txt)
-    xbmc.log(msg=message.encode("utf-8"), level=xbmc.LOGDEBUG)
+    xbmc.log(msg=message, level=xbmc.LOGDEBUG)
+    #xbmc.log(msg=message.encode("utf-8"), level=xbmc.LOGDEBUG)
 
 
 def get_browse_dialog(default="", heading="Browse", dlg_type=3, shares="files", mask="", use_thumbs=False, treat_as_folder=False):
